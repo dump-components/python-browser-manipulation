@@ -9,7 +9,7 @@ class LocalDriver(webdriver.Chrome):
     def __init__(self, webdriver_path: str, extensions=False) -> None:
         self.__options = ChromeOptions()
         self.__install_extensions(extensions)
-        super().__init__(executable_path=webdriver_path, options=self.__add_extensions())
+        super().__init__(executable_path=webdriver_path, options=self.__install_extensions(extensions))
     
     def browser(self):
         return webdriver.Chrome()

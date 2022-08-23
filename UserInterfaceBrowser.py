@@ -1,5 +1,7 @@
-import time
 from connection.ConnectBrowserType import ConnectWithBrowserType
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 class UserInterfaceBrowser(ConnectWithBrowserType):
     
@@ -7,38 +9,35 @@ class UserInterfaceBrowser(ConnectWithBrowserType):
     def __init__(self, host_executor: str, remote_browser=False) -> None:
         super().__init__(host=host_executor , remote_browser=remote_browser)
     
+    @property
+    def element_by(self):
+        return By
+    
     def visit(self, url):
         self.browser.get(url)
-        self.browser.maximize_window()
     
-    def wait(self, timeout=10):
-        self.browser.implicitly_wait(timeout)
+    def find_element(self, type_element: By, element_reference: str):
+        return self.browser.find_element(type_element, element_reference)
     
-    def find_element_by_xpath(self, xpath_element):
-        element = self.browser.find_element_by_xpath(xpath_element)
-        if element:
-            return element
+    def find_all_elements(self, type_element: By, element_reference: str):
+        return self.browser.find_elements(type_element, element_reference)
+        
+    def wait_element_on_screen(self, type_element: By, element_reference: str, timeout=10) -> bool:
+        try:
+            WebDriverWait(self.browser, timeout)\
+            .until(EC.presence_of_element_located((type_element, element_reference)))
+            return True
+        except:
+            return False
     
-    def try_find_element_by_xpath(self, xpath_element, timeout=10):
-        count = 0
-        while count <= timeout:
-            try:
-                element = self.browser.find_element_by_xpath(xpath_element)
-                time.sleep(1)
-                return element
-            except:
-                count += 1
-                time.sleep(1)
-    
-    def click_in_element_by_xpath(self, xpath_element):
-        element = self.browser.find_element_by_xpath(xpath_element)
-        if element:
+    def click_in_element(self, element):
+        try:
             element.click()
-            return True
-        
-    def send_text_in_element_by_xpath(self, xpath_element, input_text: str):
-        element = self.browser.find_element_by_xpath(xpath_element)
-        if element:
-            element.send_keys(input_text)
-            return True
-        
+        except Exception as err:
+            raise err
+
+    def send_text_in_element(self, element, text):
+        try:
+            element.send_keys(text)
+        except Exception as err:
+            raise err
